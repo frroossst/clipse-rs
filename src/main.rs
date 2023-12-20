@@ -5,7 +5,7 @@ use std::path::Path;
 use clipse::stack::{Stack, Stackable};
 
 
-const CLIPBOARD_FILE: &str = "/tmp/clipboard.txt";
+const CLIPBOARD_FILE: &str = "/tmp/clipboard_stack.clipse";
 
 fn read_clipboard() -> io::Result<String> {
     if Path::new(CLIPBOARD_FILE).exists() {
