@@ -82,6 +82,7 @@ impl<'a> App<'a> {
 pub enum ClipboardState {
     Delete(Vec<String>),
     Select(String),
+    Quit,
 }
 
 pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, tick_rate: Duration) -> Result<ClipboardState, io::Error> {
@@ -104,7 +105,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, tick_rate: 
                             if did_delete {
                                 return Ok(ClipboardState::Delete(app.items.items.iter().map(|x| x.0.to_string() ).collect()));
                             } else {
-                                return Err(io::Error::new(io::ErrorKind::Other, "User quit"));
+                                return Ok(ClipboardState::Quit)
                             }
                         },
                         KeyCode::Left | KeyCode::Char('h') => app.items.unselect(),

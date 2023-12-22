@@ -73,9 +73,10 @@ fn main() {
                         clipse::clipboard::copy_to_system_clipboard(&i);
                     }
                 },
+                _ => {},
             }
         },
-        Err(e) => eprintln!("Application error: {}", e),
+        Err(e) => eprintln!("[ERROR]: {}", e),
     }
 
 }
