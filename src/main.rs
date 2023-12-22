@@ -10,10 +10,10 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{prelude::*, widgets::*};
+use ratatui::prelude::*;
 
 
-use clipse::{encryption::encrypt, clipboard::ClipBoard, app::{App, run_app}, config::ClipConfig};
+use clipse::{encryption::encrypt, clipboard::ClipBoard, app::{App, run_app, ClipboardState}, config::ClipConfig};
 
 #[derive(Parser)]
 struct Args {
@@ -32,8 +32,6 @@ fn main() {
     let cfg: ClipConfig = load("clipse", None).expect("something went wrong with the config file!");
     let mut clipboard: ClipBoard = cfg.clipboard.into();
 
-    println!("cb => {:?}", clipboard);
-
     if args.add.is_some() {
         clipboard.add(args.add.unwrap());
         let cfg: ClipConfig = ClipConfig { clipboard: clipboard.clone() };
@@ -51,17 +49,25 @@ fn main() {
     let res = run_app(&mut terminal, app, tick_rate);
 
     disable_raw_mode().unwrap();
-
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen,
         DisableMouseCapture
     ).unwrap();
-
     terminal.show_cursor().unwrap();
 
     match res {
-        Ok(v) => println!("Selected value: {}", v),
+        Ok(v) => {
+            match v {
+                ClipboardState::Delete(li) => {
+                    let cfg: ClipConfig = ClipConfig { clipboard: ClipBoard { content: li } };
+                    store("clipse", None, cfg).expect("something went wrong with the config file!");
+                },
+                ClipboardState::Select(i) => {
+                    println!("{}", i);
+                },
+            }
+        },
         Err(e) => eprintln!("Application error: {}", e),
     }
 

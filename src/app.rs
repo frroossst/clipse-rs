@@ -84,14 +84,19 @@ impl<'a> App<'a> {
     }
 }
 
+pub enum ClipboardState {
+    Delete(Vec<String>),
+    Select(String),
+}
 
 pub fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
     mut app: App,
     tick_rate: Duration,
-) -> io::Result<String> {
+) -> Result<ClipboardState, io::Error> {
     let mut last_tick = Instant::now();
     let mut last_key: Option<KeyCode> = None;
+    let mut did_delete = false;
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 
@@ -104,7 +109,13 @@ pub fn run_app<B: Backend>(
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
-                        KeyCode::Char('q') => return Err(io::Error::new(io::ErrorKind::Other, "User quit")),
+                        KeyCode::Char('q') => {
+                            if did_delete {
+                                return Ok(ClipboardState::Delete(app.items.items.iter().map(|x| x.0.to_string() ).collect()));
+                            } else {
+                                return Err(io::Error::new(io::ErrorKind::Other, "User quit"));
+                            }
+                        },
                         KeyCode::Left | KeyCode::Char('h') => app.items.unselect(),
                         KeyCode::Down | KeyCode::Char('j') => app.items.next(),
                         KeyCode::Up | KeyCode::Char('k') => app.items.previous(),
@@ -114,14 +125,15 @@ pub fn run_app<B: Backend>(
                                 app.items.items.remove(index);
                                 app.items.unselect();
                                 app.items.select(index.saturating_sub(1));
+                                did_delete = true;
                             }
-                        }
+                        },
                         KeyCode::Enter => {
                             let index = app.items.state.selected().unwrap();
                             let item = app.items.items[index].0;
-                            return Ok(item.to_string());
+                            return Ok(ClipboardState::Select(item.to_string()));
                         }
-                        _ => {}
+                        _ => {},
                     }
                     last_key = Some(key.code);
                 } 
