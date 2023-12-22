@@ -29,16 +29,31 @@ impl ClipBoard {
 
 }
 
-pub fn copy_to_system_clipboard(content: &str) {
-    // run xclip -sel c `i` to copy to clipboard
-    let mut command = std::process::Command::new("xclip")
-        .arg("-sel")
-        .arg("c")
-        .stdin(Stdio::piped())
-        .spawn()
-        .expect("failed to execute process");
+pub enum CopyCommand {
+    XClip,
+    Wayland,
+    PBCopy,
+}
 
-    // write to stdin of xclip
-    let mut child_stdin = command.stdin.take().unwrap();
-    child_stdin.write_all(content.as_bytes()).expect("failed to write to stdin of xclip");
+pub fn copy_to_system_clipboard(content: &str, command: CopyCommand) {
+
+    match command {
+        CopyCommand::XClip => {
+            // run xclip -sel c `i` to copy to clipboard
+            let mut command = std::process::Command::new("xclip")
+                .arg("-sel")
+                .arg("c")
+                .stdin(Stdio::piped())
+                .spawn()
+                .expect("failed to execute process");
+
+            // write to stdin of xclip
+            let mut child_stdin = command.stdin.take().unwrap();
+            child_stdin.write_all(content.as_bytes()).expect("failed to write to stdin of xclip");
+        },
+        _ => {
+            unimplemented!("Only xclip is supported at the moment!")
+        }
+
+    }
 }

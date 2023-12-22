@@ -12,7 +12,7 @@ use crossterm::{
 use ratatui::prelude::*;
 
 
-use clipse::{clipboard::ClipBoard, app::{App, run_app, ClipboardState}, config::ClipConfig};
+use clipse::{clipboard::{ClipBoard, CopyCommand}, app::{App, run_app, ClipboardState}, config::ClipConfig};
 
 #[derive(Parser)]
 struct Args {
@@ -67,10 +67,11 @@ fn main() {
                     store("clipse", None, cfg).expect("something went wrong with the config file!");
                 },
                 ClipboardState::Select(i) => {
-                    println!("{}", i);
                     if args.copy {
                         #[cfg(feature = "xclip")]
-                        clipse::clipboard::copy_to_system_clipboard(&i);
+                        clipse::clipboard::copy_to_system_clipboard(&i, CopyCommand::XClip);
+                    } else {
+                        println!("{}", i);
                     }
                 },
                 _ => {},
