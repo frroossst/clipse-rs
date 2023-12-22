@@ -1,5 +1,5 @@
-
 use clap::Parser;
+use confy::{load, store};
 use std::{
     error::Error,
     io,
@@ -13,29 +13,32 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::*};
 
 
-use clipse::{encryption::encrypt, clipboard::ClipBoard, app::{App, run_app}};
+use clipse::{encryption::encrypt, clipboard::ClipBoard, app::{App, run_app}, config::ClipConfig};
 
 #[derive(Parser)]
 struct Args {
 
     #[clap(short, long)]
-    add: String,
+    add: Option<String>,
 
-    #[clap(short, long)]
-    new: String
 }
 
 fn main() {
 
-    // let args = Args::parse();
+    let args = Args::parse();
     // if no args are given show all clipboard content
 
-    let clipboard = ClipBoard::new();
+    // load existing clipboard content
+    let cfg: ClipConfig = load("clipse", None).expect("something went wrong with the config file!");
+    let mut clipboard: ClipBoard = cfg.clipboard.into();
 
-    // input message
-    let message = "Hello, world!";
-    let result = encrypt(message);
-    println!("{}", result);
+    println!("cb => {:?}", clipboard);
+
+    if args.add.is_some() {
+        clipboard.add(args.add.unwrap());
+        let cfg: ClipConfig = ClipConfig { clipboard: clipboard.clone() };
+        store("clipse", None, cfg).unwrap();
+    }
 
     enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
@@ -44,19 +47,7 @@ fn main() {
     let mut terminal = Terminal::new(backend).unwrap();
 
     let tick_rate = Duration::from_millis(250);
-    let content = vec![
-        "zero",
-        "one",
-        "two",
-        "three",
-        "four",
-        "five",
-        "six",
-        "seven",
-        "eight",
-        "nine"
-    ];
-    let app = App::new(content);
+    let app = App::new(clipboard.content.iter().map(|x| x.as_str()).collect());
     let res = run_app(&mut terminal, app, tick_rate);
 
     disable_raw_mode().unwrap();
