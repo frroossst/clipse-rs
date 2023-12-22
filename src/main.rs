@@ -1,19 +1,18 @@
 use clap::Parser;
 use confy::{load, store};
 use std::{
-    error::Error,
     io,
-    time::{Duration, Instant}, vec,
+    time::{Duration},
 };
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    event::{DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::prelude::*;
 
 
-use clipse::{encryption::encrypt, clipboard::ClipBoard, app::{App, run_app, ClipboardState}, config::ClipConfig};
+use clipse::{clipboard::ClipBoard, app::{App, run_app, ClipboardState}, config::ClipConfig};
 
 #[derive(Parser)]
 struct Args {
@@ -30,7 +29,7 @@ fn main() {
 
     // load existing clipboard content
     let cfg: ClipConfig = load("clipse", None).expect("something went wrong with the config file!");
-    let mut clipboard: ClipBoard = cfg.clipboard.into();
+    let mut clipboard: ClipBoard = cfg.clipboard;
 
     if args.add.is_some() {
         clipboard.add(args.add.unwrap());

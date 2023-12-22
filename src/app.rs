@@ -1,13 +1,10 @@
 use std::{
-    error::Error,
     io,
-    time::{Duration, Instant}, ops::RangeFrom,
+    time::{Duration, Instant},
 };
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    event::{self, Event, KeyCode, KeyEventKind},
 };
 use ratatui::{prelude::*, widgets::*};
 
@@ -100,7 +97,7 @@ pub fn run_app<B: Backend>(
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 
-        if app.items.items.len() == 0 {
+        if app.items.items.is_empty() {
             return Err(io::Error::new(io::ErrorKind::Other, "No items to select"));
         }
 

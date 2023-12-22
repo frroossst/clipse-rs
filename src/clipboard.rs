@@ -20,11 +20,8 @@ impl ClipBoard {
 
     pub fn remove(&mut self, item: &str) {
         let index = self.content.iter().position(|x| x == item);
-        match index {
-            Some(i) => {
-                self.content.remove(i);
-            },
-            None => {},
+        if let Some(i) = index {
+            self.content.remove(i);
         }
     }
 
