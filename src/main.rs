@@ -1,8 +1,8 @@
 use clap::Parser;
 use confy::{load, store};
 use std::{
-    io::{self, Write},
-    time::Duration, process::Stdio,
+    io::{self},
+    time::Duration,
 };
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
