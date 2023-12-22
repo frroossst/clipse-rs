@@ -1,3 +1,5 @@
+use std::{process::Stdio, io::Write};
+
 use serde::{Deserialize, Serialize};
 
 
@@ -25,4 +27,18 @@ impl ClipBoard {
         }
     }
 
+}
+
+pub fn copy_to_system_clipboard(content: &str) {
+    // run xclip -sel c `i` to copy to clipboard
+    let mut command = std::process::Command::new("xclip")
+        .arg("-sel")
+        .arg("c")
+        .stdin(Stdio::piped())
+        .spawn()
+        .expect("failed to execute process");
+
+    // write to stdin of xclip
+    let mut child_stdin = command.stdin.take().unwrap();
+    child_stdin.write_all(content.as_bytes()).expect("failed to write to stdin of xclip");
 }

@@ -84,11 +84,7 @@ pub enum ClipboardState {
     Select(String),
 }
 
-pub fn run_app<B: Backend>(
-    terminal: &mut Terminal<B>,
-    mut app: App,
-    tick_rate: Duration,
-) -> Result<ClipboardState, io::Error> {
+pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, tick_rate: Duration) -> Result<ClipboardState, io::Error> {
     let mut last_tick = Instant::now();
     let mut last_key: Option<KeyCode> = None;
     let mut did_delete = false;

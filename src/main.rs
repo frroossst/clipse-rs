@@ -1,8 +1,8 @@
 use clap::Parser;
 use confy::{load, store};
 use std::{
-    io,
-    time::Duration,
+    io::{self, Write},
+    time::Duration, process::Stdio,
 };
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -20,12 +20,14 @@ struct Args {
     #[clap(short, long)]
     add: Option<String>,
 
+    #[clap(short, long)]
+    copy: bool,
+
 }
 
 fn main() {
 
     let args = Args::parse();
-    // if no args are given show all clipboard content
 
     // load existing clipboard content
     let cfg: ClipConfig = load("clipse", None).expect("something went wrong with the config file!");
@@ -64,6 +66,10 @@ fn main() {
                 },
                 ClipboardState::Select(i) => {
                     println!("{}", i);
+                    if args.copy {
+                        #[cfg(feature = "xclip")]
+                        clipse::clipboard::copy_to_system_clipboard(&i);
+                    }
                 },
             }
         },
