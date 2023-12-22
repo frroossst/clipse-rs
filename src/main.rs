@@ -17,9 +17,11 @@ use clipse::{clipboard::ClipBoard, app::{App, run_app, ClipboardState}, config::
 #[derive(Parser)]
 struct Args {
 
+    /// Add a new entry to the clipboard
     #[clap(short, long)]
     add: Option<String>,
 
+    /// Copy the selected entry to the system clipboard
     #[clap(short, long)]
     copy: bool,
 
