@@ -2,7 +2,7 @@ use clap::Parser;
 use confy::{load, store};
 use std::{
     io,
-    time::{Duration},
+    time::Duration,
 };
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},

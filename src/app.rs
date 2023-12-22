@@ -3,9 +3,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crossterm::{
-    event::{self, Event, KeyCode, KeyEventKind},
-};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::*, widgets::*};
 
 pub struct StatefulList<T> {
