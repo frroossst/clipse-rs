@@ -52,6 +52,10 @@ impl<T> StatefulList<T> {
         self.state.select(Some(i));
     }
 
+    fn select(&mut self, index: usize) {
+        self.state.select(Some(index));
+    }
+
     fn unselect(&mut self) {
         self.state.select(None);
     }
@@ -87,18 +91,31 @@ pub fn run_app<B: Backend>(
     tick_rate: Duration,
 ) -> io::Result<String> {
     let mut last_tick = Instant::now();
+    let mut last_key: Option<KeyCode> = None;
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
+
+        if app.items.items.len() == 0 {
+            return Err(io::Error::new(io::ErrorKind::Other, "No items to select"));
+        }
 
         let timeout = tick_rate.saturating_sub(last_tick.elapsed());
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
-                        KeyCode::Char('q') => return Ok(String::new()),
+                        KeyCode::Char('q') => return Err(io::Error::new(io::ErrorKind::Other, "User quit")),
                         KeyCode::Left | KeyCode::Char('h') => app.items.unselect(),
                         KeyCode::Down | KeyCode::Char('j') => app.items.next(),
                         KeyCode::Up | KeyCode::Char('k') => app.items.previous(),
+                        KeyCode::Char('d') => {
+                            if last_key.is_some_and(|k| k == KeyCode::Char('d')) {
+                                let index = app.items.state.selected().unwrap();
+                                app.items.items.remove(index);
+                                app.items.unselect();
+                                app.items.select(index.saturating_sub(1));
+                            }
+                        }
                         KeyCode::Enter => {
                             let index = app.items.state.selected().unwrap();
                             let item = app.items.items[index].0;
@@ -106,7 +123,8 @@ pub fn run_app<B: Backend>(
                         }
                         _ => {}
                     }
-                }
+                    last_key = Some(key.code);
+                } 
             }
         }
         if last_tick.elapsed() >= tick_rate {
