@@ -12,6 +12,7 @@ use crossterm::{
 use ratatui::prelude::*;
 
 
+#[allow(unused_imports)]
 use clipse::{clipboard::{ClipBoard, CopyCommand}, app::{App, run_app, ClipboardState}, config::ClipConfig};
 
 #[derive(Parser)]
