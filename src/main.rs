@@ -16,6 +16,7 @@ use ratatui::prelude::*;
 use clipse::{clipboard::{ClipBoard, CopyCommand}, app::{App, run_app, ClipboardState}, config::ClipConfig};
 
 #[derive(Parser)]
+#[clap(version, about)]
 struct Args {
 
     /// Add a new entry to the clipboard
